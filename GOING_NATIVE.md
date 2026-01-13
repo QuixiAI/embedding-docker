@@ -1,87 +1,74 @@
-# Running TEI Natively
+# Compiling TEI for Windows
 
-Native installation of Text Embeddings Inference for running Gemma Embeddings 300m.
+Native compilation of Text Embeddings Inference on Windows for running Gemma Embeddings 300m.
 
 ## Prerequisites
 
-### Install Rust (all platforms)
+### Install Rust
 
-```shell
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source ~/.cargo/env
+Download and run the installer from https://rustup.rs/ or use winget:
+
+```powershell
+winget install Rustlang.Rustup
 ```
+
+Restart your terminal after installation.
+
+### Install Visual Studio Build Tools
+
+TEI requires the MSVC compiler. Install Visual Studio Build Tools with the C++ workload:
+
+```powershell
+winget install Microsoft.VisualStudio.2022.BuildTools
+```
+
+Then open Visual Studio Installer and add "Desktop development with C++".
 
 ### Clone TEI
 
-```shell
+```powershell
 git clone https://github.com/huggingface/text-embeddings-inference.git
 cd text-embeddings-inference
 ```
 
 ---
 
-## macOS
+## Build
 
-### Apple Silicon (M1/M2/M3)
+### CPU (ONNX Runtime)
 
-```shell
-cargo install --path router -F metal
-```
-
-### Intel Mac
-
-```shell
+```powershell
 cargo install --path router -F ort
 ```
 
----
+### NVIDIA GPU (CUDA)
 
-## Linux
+Requires CUDA 12.2+ and cuDNN installed. Ensure `nvcc` is in your PATH.
 
-### CPU
-
-```shell
-# Install dependencies
-sudo apt-get install libssl-dev gcc -y
-
-# Build with ONNX backend
-cargo install --path router -F ort
-```
-
-### NVIDIA GPU
-
-Requires CUDA 12.2+ and compatible drivers.
-
-```shell
-sudo apt-get install libssl-dev gcc -y
-export PATH=$PATH:/usr/local/cuda/bin
-
-# Ampere/Ada/Hopper (A100, A10, RTX 4000 series, H100)
+```powershell
+# Ampere/Ada (RTX 3000 series, RTX 4000 series)
 cargo install --path router -F candle-cuda
 
-# Turing (T4, RTX 2000 series)
+# Turing (RTX 2000 series)
 cargo install --path router -F candle-cuda-turing
 ```
 
 ---
 
-## Windows
-
-Native Windows is not officially supported. Use **WSL 2** and follow the Linux instructions above.
-
----
-
 ## Run the Server
 
-```shell
+```powershell
 text-embeddings-router --model-id unsloth/embeddinggemma-300m --port 8080
 ```
 
 ## Test
 
-```shell
-curl http://localhost:8080/embed \
-  -X POST \
-  -H 'Content-Type: application/json' \
-  -d '{"inputs": "Hello world"}'
+```powershell
+curl http://localhost:8080/embed -X POST -H "Content-Type: application/json" -d "{\"inputs\": \"Hello world\"}"
+```
+
+Or with PowerShell:
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8080/embed" -Method Post -ContentType "application/json" -Body '{"inputs": "Hello world"}'
 ```
